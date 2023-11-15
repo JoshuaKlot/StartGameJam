@@ -1,0 +1,48 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+
+public class CarMovement : MonoBehaviour
+{
+    [SerializeField] private AudioSource crash;
+    [SerializeField] public int points;
+    [SerializeField] public static float speed = 12.0f;
+    [SerializeField] public float forwardSpeed;
+    [SerializeField] public float backwardSpeed;
+    Rigidbody2D rb2d;
+    // Start is called before the first frame update
+    void Start()
+    {
+        rb2d = GetComponent<Rigidbody2D>();
+       // GlobalVariables.Instance.Speed = speed;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        float hMovemnent = Input.GetAxisRaw("Horizontal");
+        float vMovement = Input.GetAxisRaw("Vertical");
+        if(hMovemnent > 0)
+            rb2d.velocity = new Vector2(hMovemnent*forwardSpeed, speed * vMovement );
+        else
+            rb2d.velocity = new Vector2(hMovemnent*backwardSpeed, speed*vMovement);
+        
+
+    }
+    public void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.gameObject.tag=="Obstacles")
+        {
+            crash.Play();
+            points +=collision.GetComponent<ObstacleMovement>().pointValue;
+            collision.GetComponent<ObstacleMovement>().ani.SetTrigger("Hit");
+            Destroy(collision);
+            //crash.Stop();
+        }
+        if(collision.gameObject.tag=="unblockable")
+        {
+            SceneManager.LoadScene("GameOver");
+        }
+    }
+}
